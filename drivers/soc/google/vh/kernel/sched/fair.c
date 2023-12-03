@@ -8,7 +8,6 @@
 #include <kernel/sched/sched.h>
 #include <kernel/sched/pelt.h>
 #include <linux/moduleparam.h>
-#include <trace/events/power.h>
 #include <trace/hooks/systrace.h>
 
 #include "sched_priv.h"
@@ -2337,27 +2336,6 @@ void vh_sched_uclamp_validate_pixel_mod(void *data, struct task_struct *tsk,
 
 	*done = true;
 	*ret = 0;
-}
-
-void vh_sched_setscheduler_uclamp_pixel_mod(void *data, struct task_struct *tsk, int clamp_id,
-					    unsigned int value)
-{
-	struct vendor_task_struct *vtsk = get_vendor_task_struct(tsk);
-
-	trace_sched_setscheduler_uclamp(tsk, clamp_id, value);
-	if (trace_clock_set_rate_enabled()) {
-		char trace_name[32] = {0};
-		scnprintf(trace_name, sizeof(trace_name), "%s_%d",
-			clamp_id  == UCLAMP_MIN ? "UCLAMP_MIN" : "UCLAMP_MAX", tsk->pid);
-		trace_clock_set_rate(trace_name, value, raw_smp_processor_id());
-	}
-
-	if (clamp_id == UCLAMP_MAX && value == AUTO_UCLAMP_MAX_MAGIC) {
-		vtsk->auto_uclamp_max_flags |= AUTO_UCLAMP_MAX_FLAG_TASK;
-		uclamp_se_set(&tsk->uclamp_req[UCLAMP_MAX],
-			      sched_auto_uclamp_max[task_cpu(tsk)],
-			      true);
-	}
 }
 
 static inline void uclamp_fork_pixel_mod(struct task_struct *p, struct task_struct *orig)
