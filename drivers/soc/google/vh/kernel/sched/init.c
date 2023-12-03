@@ -48,8 +48,6 @@ extern void rvh_check_preempt_wakeup_pixel_mod(void *data, struct rq *rq, struct
 extern void vh_sched_uclamp_validate_pixel_mod(void *data, struct task_struct *tsk,
 					       const struct sched_attr *attr, bool user,
 					       int *ret, bool *done);
-extern void vh_sched_setscheduler_uclamp_pixel_mod(void *data, struct task_struct *tsk,
-						   int clamp_id, unsigned int value);
 extern void init_uclamp_stats(void);
 extern void vh_dup_task_struct_pixel_mod(void *data, struct task_struct *tsk,
 					 struct task_struct *orig);
@@ -461,11 +459,6 @@ static int vh_sched_init(void)
 
 	ret = register_trace_android_vh_uclamp_validate(
 		vh_sched_uclamp_validate_pixel_mod, NULL);
-	if (ret)
-		return ret;
-
-	ret = register_trace_android_vh_setscheduler_uclamp(
-		vh_sched_setscheduler_uclamp_pixel_mod, NULL);
 	if (ret)
 		return ret;
 
